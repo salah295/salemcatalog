@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>salemCatalogue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">Salem<em>Catalogue</em></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Controls bar ── -->
+  <section class="controls-bar">
+    <div class="controls-inner">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="Rechercher…" autocomplete="off" />
+        <button class="clear-search" id="clearSearch" aria-label="Effacer">✕</button>
+      </div>
+
+      <div class="filters">
+        <select id="typeFilter">
+          <option value="all">Tous types</option>
+          <option value="image">Images</option>
+          <option value="video">Vidéos</option>
+        </select>
+        <select id="yearFilter">
+          <option value="all">Toutes années</option>
+        </select>
+        <select id="categoryFilter">
+          <option value="all">Toutes catégories</option>
+        </select>
+        <select id="sortSelect">
+          <option value="">Plus récents</option>
+          <option value="date-desc">Date ↓</option>
+          <option value="date-asc">Date ↑</option>
+          <option value="title">Titre A–Z</option>
+        </select>
+      </div>
+
+      <p class="photo-count" id="photoCount"></p>
+    </div>
+  </section>
+
+  <!-- ── Gallery ── -->
+  <main class="gallery-container">
+    <div class="gallery" id="gallery"></div>
+    <div class="empty-state hidden" id="emptyState">
+      <div class="empty-icon">🖼</div>
+      <h3>Aucune photo trouvée</h3>
+      <p>Ajoutez votre première photo ou modifiez vos filtres.</p>
+    </div>
+  </main>
+
+  <!-- ── Add / Edit Modal ── -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose" aria-label="Fermer">✕</button>
+      <h2 class="modal-title" id="modalTitle">Nouveau média</h2>
+
+      <div class="filter-zone">
+        <label>Type de fichier :</label>
+        <select id="fileTypeFilter">
+          <option value="image/*">Images</option>
+          <option value="video/*">Vidéos</option>
+          <option value="image/*,video/*">Images et vidéos</option>
+        </select>
+      </div>
+
+      <div class="preview-zone" id="previewZone">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Cliquez pour choisir des fichiers</span>
+        </div>
+        <img id="previewImg" class="hidden" alt="preview" />
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden />
+      </div>
+
+      <div class="progress-zone hidden" id="progressZone">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">0%</div>
+        <div class="progress-details" id="progressDetails"></div>
+      </div>
+
+      <div class="form-fields">
+        <div class="field">
+          <label for="titleInput">Titre <span class="req">*</span></label>
+          <input type="text" id="titleInput" placeholder="Nom de la photo" maxlength="80" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="dateInput">Date <span class="req">*</span></label>
+            <input type="date" id="dateInput" />
+          </div>
+          <div class="field">
+            <label>Catégories <span class="req">*</span></label>
+            <div class="categories-section">
+              <div class="existing-categories" id="existingCategories">
+                <!-- Les catégories existantes seront ajoutées ici dynamiquement -->
+              </div>
+              <div class="add-category">
+                <input type="text" id="newCategoryInput" placeholder="Nouvelle catégorie…" maxlength="40" />
+                <button type="button" class="btn-add-category" id="btnAddCategory">Ajouter</button>
+              </div>
+            </div>
+            <div class="selected-categories" id="selectedCategories">
+              <!-- Les catégories sélectionnées seront affichées ici -->
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="descInput">Description</label>
+          <textarea id="descInput" placeholder="Une note optionnelle…" rows="3" maxlength="400"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancel">Annuler</button>
+        <button class="btn-save" id="btnSave">
+          <span id="btnSaveText">Enregistrer</span>
+          <span class="spinner hidden" id="btnSpinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Lightbox ── -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Fermer">✕</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Photo précédente">‹</button>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Photo suivante">›</button>
+    <div id="lightboxMedia"></div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
